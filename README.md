@@ -46,6 +46,29 @@ You may also enter the arguments in any arbitrary order you like.
 
 ***
 
+## Sample Images
+
+We provided a folder of plot images that we created using our script.
+
+`images/simplex_klee-minty_13.png` was created using: 
+```
+python3 opt.py dims=13 maxiter=65536 problem=klee-minty alg=simplex image_folder=./images epochs=1
+```
+`images/simplex_random_13.png` was created using: 
+```
+python3 opt.py dims=13 maxiter=65536 problem=random alg=simplex image_folder=./images epochs=150
+```
+`images/interior-point_klee-minty_13.png` was created using: 
+```
+python3 opt.py dims=13 maxiter=65536 problem=klee-minty alg=interior-point image_folder=./images epochs=1
+```
+`images/interior-point_random_13.png` was created using: 
+```
+python3 opt.py dims=13 maxiter=65536 problem=random alg=interior-point image_folder=./images epochs=150
+```
+
+***
+
 ## Contributors
 
 * [Ronli Vignanski](https://github.com/RonliVignanski)
