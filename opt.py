@@ -1,15 +1,16 @@
+import os
 import sys
 import random
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy import optimize, interpolate
-from scipy.interpolate import splrep, splev
 
 
-DEFAULT_MAX_DIMS = 6
+# global variable that stores the number of iterations of scipy.optimize 
 iterations = 0
 
 
+# creates a problem with random parameters in range [min_val, max_val]
 def create_random_problem(dims, min_val=0, max_val=1000):
     A = []
     for i in range(dims):
@@ -19,6 +20,7 @@ def create_random_problem(dims, min_val=0, max_val=1000):
     return A, b, objective
 
 
+# creates a problem with Klee-Minty parameters
 def create_klee_minty_problem(dims):
     A = []
     for i in range(dims):
@@ -42,54 +44,87 @@ def create_problem(problem_type, dims):
     return create_random_problem(dims)
     
 
+# function that we pass to scipy.optimize in order to count the number of iterations
 def callback(res):
     global iterations
     iterations += 1
 
 
-def run_simplex(dims, problem_type, alg_type, maxiter):
+# runs a chosen algorithm with a chosen problem and predefined maximum number of iterations
+def run_algorithm(dims, problem_type, alg_type, maxiter):
     global iterations
     iterations = 0
+    # A, b are the constraints and objective contains the coefficients for the objective function
     A, b, objective = create_problem(problem_type, dims)
     return optimize.linprog(objective, method=alg_type, A_ub=A, b_ub=b, callback=callback, options={ 'maxiter': maxiter })
-    
-    
-def plot(x_data, y_data, max_dims, alg_type, problem_type):
+
+
+# utility function that plots all the data in a graph
+def plot(x_data, y_data, max_dims, alg_type, problem_type, image_folder):
     x = np.array(x_data)
     y = np.array(y_data)
-    x_new = np.linspace(1, max_dims - 1, max_dims * 100)
+    # make a smoother graph
+    x_new = np.linspace(1, max_dims, max_dims * 100)
     a_BSpline = interpolate.make_interp_spline(x, y)
     y_new = a_BSpline(x_new)
     
     plt.xlabel('dimensions', fontdict={ 'weight': 'bold' })
     plt.ylabel('iterations', fontdict={ 'weight': 'bold' })
     plt.title(f'{alg_type} {problem_type}', fontdict={ 'weight': 'bold' })
-    plt.xticks(list(range(1, max_dims)))
-    plt.plot(x_new, y_new)
-    plt.savefig(f'./images/{alg_type}_{problem_type}_{max_dims}.png')
+    plt.xticks(list(range(1, max_dims + 1)))
+    plt.plot(x_new, y_new, color='red')
+    
+    file_path = os.path.join(image_folder, f'{alg_type}_{problem_type}_{max_dims}.png')
+    plt.savefig(file_path)
     plt.show()
     
+
+# this function allows the user to enter partial number of arguments 
+# with an arbitrary order
+def get_arguments():
+    # default argument values
+    params = {
+        'dims': 10,
+        'alg': 'interior-point',
+        'problem': 'klee-minty',
+        'maxiter': 2**10,
+        'epochs': 1,
+        'image_folder': '.',
+    }
+    # set arguments according to user input
+    for arg in sys.argv[1:]:
+        arg_type, arg_val = arg.split('=', 1)
+        params[arg_type] = arg_val
+    
+    return params
+
     
 def main():
     global iterations
-    max_dims = int(sys.argv[1]) + 1
-    alg_type = sys.argv[2]
-    problem_type = sys.argv[3] # interior-point / simplex
-    maxiter = int(sys.argv[4]) # TODO: make optional
-    epochs = int(sys.argv[5])
+    
+    params = get_arguments()
+    max_dims = params['dims']
+    alg_type = params['alg']
+    problem_type = params['problem']
+    maxiter = params['maxiter']
+    epochs = params['epochs']
+    image_folder = params['image_folder']
     
     plot_data = []
-    dim_range = list(range(1, max_dims))
+    # run through every dimension from 1 to max_dims
+    dim_range = list(range(1, max_dims + 1))
     for dim in dim_range:
+        # run for a number of epochs for each dimension (in order to get an average number of iterations)
         sum_of_iterations = 0
         for _ in range(epochs):
-            res = run_simplex(dim, problem_type, alg_type, maxiter)
+            res = run_algorithm(dim, problem_type, alg_type, maxiter)
             sum_of_iterations += iterations
+            # incase scipy fails - display the error and finish
             if not res.success:
                 print('simplex failed', res.message)
                 sys.exit(-1)
         plot_data.append(sum_of_iterations / epochs)
-    plot(dim_range, plot_data, max_dims, alg_type, problem_type)
+    plot(dim_range, plot_data, max_dims, alg_type, problem_type, image_folder)
     
 
 if __name__ == '__main__':
