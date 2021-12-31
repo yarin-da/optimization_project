@@ -103,11 +103,11 @@ def main():
     global iterations
     
     params = get_arguments()
-    max_dims = params['dims']
+    max_dims = int(params['dims'])
     alg_type = params['alg']
     problem_type = params['problem']
-    maxiter = params['maxiter']
-    epochs = params['epochs']
+    maxiter = int(params['maxiter'])
+    epochs = int(params['epochs'])
     image_folder = params['image_folder']
     
     plot_data = []
