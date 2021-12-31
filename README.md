@@ -27,6 +27,19 @@ For example:
     python3 opt.py dims=10 alg=interior-point problem=klee-minty maxiter=1024 epochs=1 image_folder=.
 ```
 
+Options:
+```
+alg: interior-point, simplex
+
+problem: klee-minty, random
+
+maxiter: positive integer
+
+epochs: positive integer
+
+image_folder: folder path
+```
+
 You may enter a partial number of arguments (arguments that aren't passed to the script will get a default value).
 
 You may also enter the arguments in any arbitrary order you like.
