@@ -24,7 +24,7 @@ After you have all the dependencies, run the script.
 
 For example:
 ```bash
-    python3 opt.py dims=10 alg=interior-point problem=klee-minty maxiter=1024 epochs=1 image_folder=.
+    python3 opt.py dims=10 alg=interior-point problem=klee-minty maxiter=1024 epochs=1 scaling=False image_folder=.
 ```
 
 Options:
@@ -36,6 +36,8 @@ problem: klee-minty, random
 maxiter: positive integer
 
 epochs: positive integer
+
+scaling: boolean [True, False]
 
 image_folder: folder path
 ```
